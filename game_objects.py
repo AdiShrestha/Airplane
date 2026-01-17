@@ -250,18 +250,18 @@ class Missile(GameObject):
         self.trail_particles = []
     
     def get_vertices(self) -> List[Tuple[float, float]]:
-        """Missile body vertices"""
+        """Missile body vertices - nose pointing LEFT (direction of travel)"""
         l = self.length
         h = self.height
         return [
-            (l/2, 0),       # Nose tip
-            (l/4, h/2),     # Top front
-            (-l/2, h/2),    # Top back
-            (-l/2 - 5, h),  # Fin top
-            (-l/2, 0),      # Back center
-            (-l/2 - 5, -h), # Fin bottom
-            (-l/2, -h/2),   # Bottom back
-            (l/4, -h/2),    # Bottom front
+            (-l/2, 0),       # Nose tip (pointing left)
+            (-l/4, h/2),     # Top front
+            (l/2, h/2),      # Top back
+            (l/2 + 5, h),    # Fin top
+            (l/2, 0),        # Back center
+            (l/2 + 5, -h),   # Fin bottom
+            (l/2, -h/2),     # Bottom back
+            (-l/4, -h/2),    # Bottom front
         ]
     
     def get_render_data(self) -> dict:
@@ -280,18 +280,18 @@ class Missile(GameObject):
         data['body'] = filled_polygon(body_verts)
         data['outline'] = self._get_polygon_outline(body_verts)
         
-        # Nose cone (using ellipse)
-        nose_pos = Transform2D.transform_point((self.length/2 - 5, 0), matrix)
+        # Nose cone (using ellipse) - pointing left
+        nose_pos = Transform2D.transform_point((-self.length/2 + 5, 0), matrix)
         data['nose'] = filled_ellipse(int(nose_pos[0]), int(nose_pos[1]), 8, 4)
         
-        # Flame trail
-        flame_pos = Transform2D.transform_point((-self.length/2 - 5, 0), matrix)
+        # Flame trail - at the back (right side)
+        flame_pos = Transform2D.transform_point((self.length/2 + 5, 0), matrix)
         flame_length = random.randint(10, 20)
         for i in range(3):
             offset = random.randint(-3, 3)
             data['flame'].extend(bresenham_line(
                 int(flame_pos[0]), int(flame_pos[1]),
-                int(flame_pos[0] - flame_length - i*5), int(flame_pos[1] + offset)
+                int(flame_pos[0] + flame_length + i*5), int(flame_pos[1] + offset)
             ))
         
         return data
